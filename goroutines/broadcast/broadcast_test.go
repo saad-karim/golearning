@@ -1,9 +1,10 @@
 package broadcast_test
 
 import (
-	"goroutines/broadcast"
 	"testing"
 	"time"
+
+	"github.com/golearning/goroutines/broadcast"
 )
 
 func TestRunRoutines(t *testing.T) {
