@@ -8,15 +8,22 @@ import (
 )
 
 func TestRunRoutines(t *testing.T) {
-	b := broadcast.Broadcaster{}
-
-	ch := make(chan string)
-	go b.SendMessageOnChannel(ch)
-
-	l := broadcast.Listner{
+	l := broadcast.Listener{
 		Name: "L1",
 	}
 
-	go l.ReadMessageOnChannel(ch)
+	l2 := broadcast.Listener{
+		Name: "L2",
+	}
+
+	p := broadcast.Producer{}
+	b := broadcast.Broadcaster{
+		Producer:  p,
+		Listeners: []broadcast.Listener{l, l2},
+	}
+
+	ch := make(chan string)
+	go b.Broadcast(ch)
+
 	time.Sleep(10 * time.Second)
 }
