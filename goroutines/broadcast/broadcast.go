@@ -2,39 +2,31 @@ package broadcast
 
 import (
 	"fmt"
-	"time"
+	"sync"
 )
 
 type Broadcaster struct {
-	Producer  Producer
 	Listeners []Listener
 }
 
-func (b *Broadcaster) Broadcast(ch chan string) {
-	go b.Producer.Message(ch)
+func New() *Broadcaster {
+	return &Broadcaster{
+		Listeners: []Listener{},
+	}
+}
+
+func (b *Broadcaster) RegisterListener(listener Listener) {
+	b.Listeners = append(b.Listeners, listener)
+}
+
+func (b *Broadcaster) Broadcast(ch chan string, wg *sync.WaitGroup) {
 	for {
+		fmt.Println("Waiting to broadcast message...")
 		message := <-ch
+		fmt.Println("Broadcast message: ", message)
 		for _, l := range b.Listeners {
-			l.ReadMessageOnChannel(message)
+			l.RecieveMessage(message)
 		}
+		wg.Done()
 	}
-}
-
-type Producer struct{}
-
-func (p *Producer) Message(ch chan string) {
-	counter := 0
-	for {
-		counter++
-		ch <- fmt.Sprintf("message - %d", counter)
-		time.Sleep(2 * time.Second)
-	}
-}
-
-type Listener struct {
-	Name string
-}
-
-func (l *Listener) ReadMessageOnChannel(message string) {
-	fmt.Printf("%s received message: %s\n", l.Name, message)
 }
